@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Hangman Game</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="app-container">
+
+        <!-- HEADER -->
+        <header class="header">
+
+            <div class="header-content">
+                <h1>Hangman Game</h1>
+                <p>Guess the hidden word and test your knowledge!</p>
+            </div>
+
+            <!-- DARK / LIGHT MODE: TOP RIGHT -->
+            <button
+                id="themeToggle"
+                class="theme-toggle"
+                type="button"
+                aria-label="Switch colour theme">
+                ☀️ Light Mode
+            </button>
+
+        </header>
+
+
+        <!-- SCORE PANEL -->
+        <section class="score-panel">
+
+            <div class="score-card">
+                <span class="score-label">Total Score</span>
+                <span id="totalScore" class="score-value">0</span>
+            </div>
+
+            <div class="score-card">
+                <span class="score-label">Games Won</span>
+                <span id="gamesWon" class="score-value">0</span>
+            </div>
+
+            <div class="score-card">
+                <span class="score-label">Games Played</span>
+                <span id="gamesPlayed" class="score-value">0</span>
+            </div>
+
+        </section>
+
+
+        <!-- MAIN GAME -->
+        <main class="game-container">
+
+            <!-- HANGMAN DRAWING -->
+            <section class="hangman-section">
+
+                <h2>Hangman</h2>
+
+                <svg
+                    class="hangman-svg"
+                    viewBox="0 0 240 260"
+                    role="img"
+                    aria-label="Hangman drawing">
+
+                    <!-- Base -->
+                    <line
+                        x1="25" y1="235"
+                        x2="155" y2="235"
+                        class="gallows-line"/>
+
+                    <!-- Vertical pole -->
+                    <line
+                        x1="55" y1="235"
+                        x2="55" y2="25"
+                        class="gallows-line"/>
+
+                    <!-- Top pole -->
+                    <line
+                        x1="55" y1="25"
+                        x2="155" y2="25"
+                        class="gallows-line"/>
+
+                    <!-- Rope -->
+                    <line
+                        x1="155" y1="25"
+                        x2="155" y2="55"
+                        class="gallows-line"/>
+
+                    <!-- Head -->
+                    <circle
+                        cx="155" cy="75" r="20"
+                        class="body-part"
+                        data-part="1"/>
+
+                    <!-- Body -->
+                    <line
+                        x1="155" y1="95"
+                        x2="155" y2="155"
+                        class="body-part"
+                        data-part="2"/>
+
+                    <!-- Left arm -->
+                    <line
+                        x1="155" y1="110"
+                        x2="125" y2="135"
+                        class="body-part"
+                        data-part="3"/>
+
+                    <!-- Right arm -->
+                    <line
+                        x1="155" y1="110"
+                        x2="185" y2="135"
+                        class="body-part"
+                        data-part="4"/>
+
+                    <!-- Left leg -->
+                    <line
+                        x1="155" y1="155"
+                        x2="128" y2="190"
+                        class="body-part"
+                        data-part="5"/>
+
+                    <!-- Right leg -->
+                    <line
+                        x1="155" y1="155"
+                        x2="182" y2="190"
+                        class="body-part"
+                        data-part="6"/>
+
+                </svg>
+
+                <div class="attempts-info">
+                    <p>
+                        Incorrect Attempts:
+                        <strong id="attempts">0 / 6</strong>
+                    </p>
+
+                    <div class="progress-container">
+                        <div id="attemptBar" class="progress-bar"></div>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- WORD AND GAME CONTROLS -->
+            <section class="game-section">
+
+                <div class="word-information">
+                    <h2>Guess the Word</h2>
+                    <p>Choose a letter to reveal the hidden word.</p>
+                </div>
+
+                <div id="word" class="word-display"></div>
+
+                <div
+                    id="message"
+                    class="message"
+                    aria-live="polite">
+                    Good luck! Start guessing.
+                </div>
+
+
+                <!-- HINT -->
+                <div class="hint-section">
+
+                    <button
+                        id="hintButton"
+                        class="hint-button"
+                        type="button">
+                        💡 Get Hint
+                    </button>
+
+                    <p id="hintDisplay" class="hint-display">
+                        Your hint will appear here.
+                    </p>
+
+                </div>
+
+
+                <!-- KEYBOARD -->
+                <div class="keyboard" id="keyboard"></div>
+
+
+                <!-- GAME ACTIONS -->
+                <div class="game-actions">
+
+                    <button
+                        id="nextWord"
+                        class="next-button"
+                        type="button">
+                        ⏭️ Next Word
+                    </button>
+
+                    <button
+                        id="restart"
+                        class="restart-button"
+                        type="button">
+                        🔄 Play Again
+                    </button>
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p>Made with ❤️ | Hangman Game</p>
+        </footer>
+
+    </div>
+
+
+    <!-- THEME FUNCTIONALITY -->
+    <script>
+        "use strict";
+
+        const themeToggle = document.getElementById("themeToggle");
+
+        function updateThemeButton() {
+            const isLightMode =
+                document.body.classList.contains("light-mode");
+
+            themeToggle.textContent = isLightMode
+                ? "🌙 Dark Mode"
+                : "☀️ Light Mode";
+
+            themeToggle.setAttribute(
+                "aria-label",
+                isLightMode
+                    ? "Switch to dark mode"
+                    : "Switch to light mode"
+            );
+        }
+
+        function setTheme(theme) {
+            document.body.classList.toggle(
+                "light-mode",
+                theme === "light"
+            );
+
+            try {
+                localStorage.setItem("hangmanTheme", theme);
+            } catch (error) {
+                // Theme switching still works if storage is unavailable.
+            }
+
+            updateThemeButton();
+        }
+
+        let savedTheme = "dark";
+
+        try {
+            savedTheme = localStorage.getItem("hangmanTheme") || "dark";
+        } catch (error) {
+            savedTheme = "dark";
+        }
+
+        setTheme(savedTheme);
+
+        themeToggle.addEventListener("click", function () {
+            const isLightMode =
+                document.body.classList.contains("light-mode");
+
+            setTheme(isLightMode ? "dark" : "light");
+        });
+    </script>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
